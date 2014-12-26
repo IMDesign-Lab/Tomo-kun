@@ -1,0 +1,23 @@
+C:\Users\E440-2grade-PC\Documents\GitHub\kinect [master]> git push origin master
+
+Counting objects: 192, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (189/189), done.
+efrror: RPC failed; result=22, HTTP code = 5016.00 KiB/s
+atal: The remote end hung up unexpectedly
+Writing objects: 100% (191/191), 36.25 MiB | 3.69 MiB/s, done.
+Total 191 (delta 44), reused 0 (delta 0)
+fatal: The remote end hung up unexpectedly
+Everything up-to-date
+C:\Users\E440-2grade-PC\Documents\GitHub\kinect [master]> git clone http://202.2
+09.103.101/shimokawa/kinect/kinect.git
+C:\Users\E440-2grade-PC\Documents\GitHub\kinect> git clone http://202.209.103.10
+1/shimokawa/kinect.git
+C:\Users\E440-2grade-PC\Documents\GitHub\kinect> cd ../
+C:\Users\E440-2grade-PC\Documents\GitHub> git clone http://202.209.103.101/shimo
+kawa/kinect.git
+Cloning into 'kinect'...
+remote: Counting objects: 3, done.
+remote: Total 3 (delta 0), reused 0 (delta 0)
+Unpacking objects: 100% (3/3), done.
+Checking connectivity... done.

@@ -28,7 +28,7 @@
 		private var startTime: Number; //wavのスタートするタイマー
 
 
-		private var video: Array = ["Y:\\2014年度_卒研\\下川和辰\\下川_卒研_育英祭資料\\IDS_movie.mp4"]; //ビデオのファイルたちの格納する配列
+		private var video: Array = ["C:\\Users\\E440-2grade-PC\\Desktop\\IDS_movie.mp4"]; //ビデオのファイルたちの格納する配列
 		private var kinect_array: Array = [];
 		private var speech_array: Array = [];
 		//private var LCircleArray:Array =[];
@@ -40,7 +40,7 @@
 
 		private var kinect_process: NativeProcess;
 		private var kinect_nativeProcessStartupInfo: NativeProcessStartupInfo;
-		private var kinect_fileName: String = 'kinect_core64.exe'; //アプリケーション
+		private var kinect_fileName: String = 'C:\\Users\\E440-2grade-PC\\Documents\\GitHub\\interactive_digitalSignage\\Bin64\\Release\\kinect_core64.exe'; //アプリケーション
 		private var kinect_file: File = File.applicationDirectory.resolvePath(kinect_fileName);
 
 

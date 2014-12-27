@@ -31,8 +31,6 @@
 		private var video: Array = ["C:\\Users\\E440-2grade-PC\\Desktop\\IDS_movie.mp4"]; //ビデオのファイルたちの格納する配列
 		private var kinect_array: Array = [];
 		private var speech_array: Array = [];
-		//private var LCircleArray:Array =[];
-		//private var RCircleArray:Array =[];
 
 		private var bytes: ByteArray; //音声データ入れるもの
 		private var wavBytes: ByteArray; //wavファイル
@@ -134,6 +132,9 @@
 		public var xml_count:uint=0;
 		public var xml_contents:uint=0;
 		
+		private var L_kinect: l_kinect = new l_kinect();
+		private var R_kinect: r_kinect = new r_kinect();
+		
 		
 		public function main() {
 			stop(); //シーンが出てこないようにおまじない
@@ -217,8 +218,8 @@
 				player.play(video_Path);
 			} else if (ske_answer == true) {
 				kinect_ske = kinect_console;
-				//LCircleArray.push(L_kinect);
-				//RCircleArray.push(R_kinect);
+				LCircleArray.push(L_kinect);
+				RCircleArray.push(R_kinect);
 				stage.addChild(LCircleArray[0]);
 				stage.addChild(RCircleArray[0]);
 				g.lineStyle(5, 0x0CBF56, 100);
@@ -340,7 +341,9 @@
 
 		} //kinect_p
 		
-		/*##########################xmlがある時###############################*/		
+		/*##########################xmlがある時###############################*/
+		
+		/*##########################menu###############################*/
 		public function menu() {
 			contents_loader_obj = new Loader();
 
@@ -374,7 +377,7 @@
 		
 			
 			contents_name="menu.jpg";
-			contents_name2 = "../img/" + contents_name;
+			contents_name2 = "../img/moji/" + contents_name;
 			trace(contents_name2);
 			
 			//text1.text = "ファイル名=" + contents_name2;
@@ -387,6 +390,7 @@
 			contents_loader_obj.scaleY=1;
 			contents_loader_obj.load(contents_url);
 			stage.addChild(contents_loader_obj);
+			menu_text.text="音声を入力してください";
 			
 		}
 			

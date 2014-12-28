@@ -223,6 +223,7 @@
 				menu();
 			} else if (lost_answer == true) {
 				trace("人認識解除");
+				player.play(video_Path);
 				menu_pic.addEventListener(Event.ENTER_FRAME,menu_pic_FadeSymbolOut);
 
 			} else if (ske_answer == true) {
@@ -378,16 +379,25 @@
 			function menu_pic_FadeSymbolOut(event:Event)//文字のフェード
 			{
 				menu_pic.alpha -= 0.05;
+				
 				if(menu_pic.alpha <= 0)
 				{
 					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
+					kinect_remove();
 					gotoAndStop(1, "シーン 1");
 					speech_array = [];
-					player.play(video_Path);
+
+					
 				}
 			}//fl_FadeSymbolOut
 			
-		/*######################################################################*/		
+		/*######################################################################*/	
+			
+		public function kinect_remove() {
+				stage.removeChild(LCircleArray[0]);
+				stage.removeChild(RCircleArray[0]);
+				
+		}
 		
 
 			

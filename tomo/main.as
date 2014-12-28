@@ -134,10 +134,19 @@
 		
 		private var L_kinect: l_kinect = new l_kinect();
 		private var R_kinect: r_kinect = new r_kinect();
+		private var menu_pic: menu_pict = new menu_pict();//menu画像のなんか
+		//private var menu_picArray: Array = new Array;
 		
+		private var fadeType:String;
+
 		
 		public function main() {
 			stop(); //シーンが出てこないようにおまじない
+			
+			//menu_picArray.push(menu_pic);
+			//gotoAndStop(1, "シーン 2");
+			
+			//menu();
 			op_video();
 			kinect();
 		}//main
@@ -152,12 +161,12 @@
 		} //resizehandler
 
 		public function fullScreenHandler(event: FullScreenEvent): void {
-			trace("フルスクリーン");
+			//trace("フルスクリーン");
 			if (!event.fullScreen) resizeHandler();
 		} //fullscreenHandler
 
 		public function videoChange(event: fl.video.VideoEvent) {
-			trace("ビデオ変更");
+			//trace("ビデオ変更");
 			if (video_count < video_Num - 1) {
 				video_count++;
 				video_Path = video[video_count].toString();
@@ -172,16 +181,17 @@
 		public function op_video() {
 			trace("ビデオ起動");
 			player.volume = 1; //ビデオの再生
-			stage.align = StageAlign.TOP_LEFT;
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.displayState = StageDisplayState.FULL_SCREEN;
-			player.scaleMode = VideoScaleMode.MAINTAIN_ASPECT_RATIO;
-			stage.addEventListener(Event.RESIZE, resizeHandler);
-			stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+			//stage.displayState = StageDisplayState.FULL_SCREEN;
+			//stage.align = StageAlign.TOP_LEFT;
+			//stage.scaleMode = StageScaleMode.NO_SCALE;
+			//player.scaleMode = VideoScaleMode.MAINTAIN_ASPECT_RATIO;
+			//stage.addEventListener(Event.RESIZE, resizeHandler);
+			//stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 			resizeHandler();
 			video_count = 0;
 			video_Path = video[video_count].toString();
-			addChild(player);
+			stage.addChild(player);
+			stage.setChildIndex(player, 0);
 			player.play(video_Path);
 			player.addEventListener(fl.video.VideoEvent.COMPLETE, videoChange);
 		} //on_video
@@ -208,14 +218,13 @@
 			if (add_answer == true) {
 				trace("人認識");
 				player.stop();
-				gotoAndStop(1, "onsei");
+				gotoAndStop(1, "シーン 2");
+				stage.addChild(menu_pic);
 				menu();
 			} else if (lost_answer == true) {
 				trace("人認識解除");
-				//kinect_remove_waku();
-				gotoAndStop(1, "シーン 1");
-				speech_array = [];
-				player.play(video_Path);
+				menu_pic.addEventListener(Event.ENTER_FRAME,menu_pic_FadeSymbolOut);
+
 			} else if (ske_answer == true) {
 				kinect_ske = kinect_console;
 				LCircleArray.push(L_kinect);
@@ -261,7 +270,7 @@
 						contents_loader_obj.unload();
 						contents_n=0;
 					}
-						gotoAndStop(1, "onsei");
+						gotoAndStop(1, "シーン 2");
 						//web_api();
 				}
 				/*##########################左手を上に上げたら###############################*/
@@ -345,54 +354,42 @@
 		
 		/*##########################menu###############################*/
 		public function menu() {
-			contents_loader_obj = new Loader();
-
-			// ローダーインフォを取得
-			var info: LoaderInfo = contents_loader_obj.contentLoaderInfo;
-
-			info.addEventListener(Event.OPEN, LoaderInfoOpenFunc);
-			function LoaderInfoOpenFunc(event: Event): void {
-			}
-
-			info.addEventListener(ProgressEvent.PROGRESS, LoaderInfoProgressFunc);
-			function LoaderInfoProgressFunc(event: ProgressEvent): void {
-			}
-
-			info.addEventListener(Event.INIT, LoaderInfoInitFunc);
-			function LoaderInfoInitFunc(event: Event): void {
-				
-			}
-			
-			info.addEventListener(Event.COMPLETE, LoaderInfoCompleteFunc);
-			function LoaderInfoCompleteFunc(event: Event): void {
-				c_width = info.width;
-				c_height = info.height;
-			}
-
-			info.addEventListener(IOErrorEvent.IO_ERROR, LoaderInfoIOErrorFunc);
-			function LoaderInfoIOErrorFunc(event: IOErrorEvent): void {
-				trace("ファイル入出力のエラー");
-			}
-
-		
-			
-			contents_name="menu.jpg";
-			contents_name2 = "../img/moji/" + contents_name;
-			trace(contents_name2);
-			
-			//text1.text = "ファイル名=" + contents_name2;
-			contents_url = new URLRequest(contents_name2);
-
-			//x,yは表示させる場所
-			var color_transform : ColorTransform = new ColorTransform();
-			color_transform.color = 0x000000;
-			contents_loader_obj.scaleX=1;
-			contents_loader_obj.scaleY=1;
-			contents_loader_obj.load(contents_url);
-			stage.addChild(contents_loader_obj);
-			menu_text.text="音声を入力してください";
-			
+			trace("menu");
+			//フェード
+			stage.addChild(menu_pic);//最背面に移動　http://morishige.jp/blog/archives/99
+			stage.setChildIndex(menu_pic, 1);
+			fadeType = "in";
+			menu_pic.addEventListener(Event.ENTER_FRAME,menu_pic_FadeSymbolIn);
+			menu_pic.alpha = 0;
+			//フェードここまで
 		}
+		
+		
+		/*###########################フェイドイン関係###########################*/		
+
+			function menu_pic_FadeSymbolIn(event:Event)//文字のフェード
+			{
+				menu_pic.alpha += 0.05;
+				if(menu_pic.alpha >= 1)
+				{
+					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolIn);
+				}
+			}//fl_FadeSymbolin
+			function menu_pic_FadeSymbolOut(event:Event)//文字のフェード
+			{
+				menu_pic.alpha -= 0.05;
+				if(menu_pic.alpha <= 0)
+				{
+					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
+					gotoAndStop(1, "シーン 1");
+					speech_array = [];
+					player.play(video_Path);
+				}
+			}//fl_FadeSymbolOut
+			
+		/*######################################################################*/		
+		
+
 			
 
 	} //main

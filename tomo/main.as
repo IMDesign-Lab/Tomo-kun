@@ -134,6 +134,8 @@
 
 		private var fadeType: String;
 		private var kinect_pointer_add: Boolean = false;
+		private var kinect_user_out: Boolean = false;
+		private var menu_in: Boolean = false;
 
 
 		public function main() {
@@ -147,9 +149,9 @@
 			//menu();
 			//op_video();
 			//kinect();
-			
-			
-			
+
+
+
 		} //main
 
 		/*##########################ビデオ処理###############################*/
@@ -225,6 +227,7 @@
 			} else if (lost_answer == true) {
 				trace("人認識解除");
 				player.play(video_Path);
+				kinect_user_out = true;
 				menu_pic.addEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
 
 			} else if (ske_answer == true) {
@@ -359,7 +362,7 @@
 		public function menu() {
 			trace("menu");
 			/*##########################フェード###############################*/
-
+			menu_in=true;
 			menu_pic.alpha = 0;
 			menu_tx1.alpha = 0;
 			menu_tx2.alpha = 0;
@@ -412,15 +415,30 @@
 		} //fl_FadeSymbolin
 		function menu_pic_FadeSymbolOut(event: Event) //文字のフェード
 		{
-			menu_pic.alpha -= 0.05;
-			menu_tx1.alpha -= 0.05;
-			menu_tx2.alpha -= 0.05;
-
-			if (menu_pic.alpha <= 0) {
-				menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
-				kinect_remove();
-				speech_array = [];
-				gotoAndStop(1, "シーン 1");
+			if (kinect_user_out == true) {
+				menu_pic.alpha -= 0.05;
+				menu_tx1.alpha -= 0.05;
+				menu_tx2.alpha -= 0.05;
+				if (menu_pic.alpha <= 0 || menu_tx1.alpha <= 0 || menu_tx2.alpha <= 0) {
+						menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
+						kinect_remove();
+						speech_array = [];
+						kinect_user_out = false;
+						gotoAndStop(1, "シーン 1");
+					}
+			}else{
+				menu_pic.alpha -= 0.05;
+				menu_tx1.alpha -= 0.05;
+				menu_tx2.alpha -= 0.05;
+				if (menu_pic.alpha <= 0) {
+					if(menu_in==true){
+						gotoAndStop(1, "シーン 3");
+						stage.addChild(contents_loader_obj);
+						stage.setChildIndex(contents_loader_obj, 0);
+						menu_in=false;
+					}
+					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
+				}
 
 			}
 		} //fl_FadeSymbolOut
@@ -558,6 +576,7 @@
 							str += button + " bx=" + bx1 + " by=" + by1 + " ax=" + ax1 + " ay=" + ay1 + "\n";
 						}　 //実行する順番は重要
 						contents_name = speech_array[0];
+						trace("parse->"+speech_array[0]);
 						contents_view();
 						return str;
 
@@ -566,7 +585,7 @@
 				} else {
 					contents_name = speech_array[0];
 
-					//contents_view();
+					contents_view();
 
 				}
 			} //web_onComplete
@@ -574,10 +593,12 @@
 			function web_onError(e: IOErrorEvent): void {} //onError
 
 		} //web_soushin
-		
+
 		public function contents_view() { //コンテンツ表示
+			trace("contents_view");
 			contents_loader_obj = new Loader();
 			//gotoAndStop(1, "onsei");
+			//gotoAndStop(1, "シーン 3");
 
 
 			// ローダーインフォを取得
@@ -621,60 +642,65 @@
 
 			// 読み込み開始
 			//contents_name="1.swf";
-			if(xml_contents<=1){
-				contents_name=xml_contents_array[xml_contents];
-			}
+			/*if (xml_contents <= 1) {
+				contents_name = xml_contents_array[xml_contents];
+			}*/
+
 			
+
 			contents_name2 = "../img/" + contents_name;
-			trace(contents_name2);
-			
+			trace("読み込み->"+contents_name2);
+
 			//text1.text = "ファイル名=" + contents_name2;
 			contents_url = new URLRequest(contents_name2);
-			
+
 
 
 
 			//x,yは表示させる場所
-			var color_transform : ColorTransform = new ColorTransform();
+			var color_transform: ColorTransform = new ColorTransform();
 			color_transform.color = 0x000000;
-			contents_loader_obj.scaleX=1;
-			contents_loader_obj.scaleY=1;
-			
+			//contents_loader_obj.scaleX = 1;
+			//contents_loader_obj.scaleY = 1;
+
 
 			contents_loader_obj.load(contents_url);
+			if(menu_in==true){
+				menu_pic.addEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
+				//menu_in=false;
+			}else{
+				stage.addChild(contents_loader_obj);
+				stage.setChildIndex(contents_loader_obj, 0);
+			}
 			
-			
-			stage.addChild(contents_loader_obj);
 			trace("画像読み込み完了");
 			//text1.text="読み込み完了";
-			if(xml_found==1){
+			if (xml_found == 1) {
 				trace("if->xml_found");
 				make_square();
-				}			
+			}
 
 		} //contents_view
-		
-		public function make_square(){
+
+		public function make_square() {
 			var shape = new Shape();
 			stage.addChild(shape);
 			var g = shape.graphics;
-			g.lineStyle (1, 0x000000, 1.0);	// 線のスタイル指定
-			g.beginFill (0xFF0000, 0.2);	// 面のスタイル設定
-			for (var i:uint = 0; i < xml_length; i++) {
-					var b_x: int = bx.shift();
-					var b_y: int = by.shift();
-					var a_x: int = ax.shift();
-					var a_y: int = ay.shift();
-					//trace("bx="+b_x+"by="+b_y+"ax="+a_x+"ay="+a_y+"\n");
-					g.drawRect( b_x, b_y , (a_x-b_x) , (a_y-b_y));
-				
-				
+			g.lineStyle(1, 0x000000, 1.0); // 線のスタイル指定
+			g.beginFill(0xFF0000, 0.2); // 面のスタイル設定
+			for (var i: uint = 0; i < xml_length; i++) {
+				var b_x: int = bx.shift();
+				var b_y: int = by.shift();
+				var a_x: int = ax.shift();
+				var a_y: int = ay.shift();
+				//trace("bx="+b_x+"by="+b_y+"ax="+a_x+"ay="+a_y+"\n");
+				g.drawRect(b_x, b_y, (a_x - b_x), (a_y - b_y));
 			}
 			//xml_length=0;
 			//xml_found=0;
-			
-			
-		}//make_square
+
+
+		} //make_square
 
 	} //main
 

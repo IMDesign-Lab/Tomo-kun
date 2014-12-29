@@ -133,22 +133,29 @@
 		//private var menu_picArray: Array = new Array;
 
 		private var fadeType: String;
-		private var kinect_pointer_add: Boolean = false;
-		private var kinect_user_out: Boolean = false;
-		private var menu_in: Boolean = false;
+		private var kinect_pointer_add: Boolean = false; //画面上に上下のポインターが表示されているか
+		private var kinect_user_out: Boolean = false; //kinectからユーザがいなくなったかどうか
+		private var menu_in: Boolean = false; //menu画面を表示させたか
+		private var first_contents: Boolean = false; //最初のコンテンツを表示させたか
+		private var scene_2: Boolean = false; //scene2にいったかどうか
+		private var square: Boolean = false; //scene2にいったかどうか
+		
+		private var square_shape = new Shape();
+
 
 
 		public function main() {
 			stop(); //シーンが出てこないようにおまじない
-			gotoAndStop(1, "シーン 2");
+			//gotoAndStop(1, "シーン 2");
 			//stage.addChild(menu_pic);
-			menu();
+			//menu();
 			//menu_picArray.push(menu_pic);
 			//gotoAndStop(1, "シーン 2");
 
 			//menu();
-			//op_video();
-			//kinect();
+			op_video();
+			kinect();
+
 
 
 
@@ -194,7 +201,7 @@
 			video_count = 0;
 			video_Path = video[video_count].toString();
 			stage.addChild(player);
-			stage.setChildIndex(player, 0);
+			//stage.setChildIndex(player, 0);
 			player.play(video_Path);
 			player.addEventListener(fl.video.VideoEvent.COMPLETE, videoChange);
 		} //on_video
@@ -221,11 +228,13 @@
 			if (add_answer == true) {
 				trace("人認識");
 				player.stop();
+				stage.removeChild(player);
 				gotoAndStop(1, "シーン 2");
-				stage.addChild(menu_pic);
+				scene_2=true;
 				menu();
 			} else if (lost_answer == true) {
 				trace("人認識解除");
+				stage.addChild(player);
 				player.play(video_Path);
 				kinect_user_out = true;
 				menu_pic.addEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
@@ -272,12 +281,18 @@
 
 				/*##########################左手を上に上げたら###############################*/
 				if (int(parseInt(kinect_array[3]) * 2.25) <= 40) {
-					if (contents_n == 1) {
+					if (first_contents == true) {
 						contents_loader_obj.unload();
-						contents_n = 0;
+						first_contents = false;
+
 					}
+					if(square==true){
+						stage.removeChild(square_shape);
+						square=false;
+					}					
 					gotoAndStop(1, "シーン 2");
-					//web_api();
+					scene_2=true;
+					menu();
 				}
 				/*##########################左手を上に上げたら###############################*/
 
@@ -317,7 +332,7 @@
 					//stage.removeChild(shape);
 					kinect_2 = 0;
 				}
-				if (contents_n == 1) {
+				/*if (first_contents==true) {
 					//trace("片手=>コンテンツは読み込み済み");
 					trace(kinect_array);
 					contents_loader_obj.x = parseInt(kinect_array[8]);
@@ -326,7 +341,7 @@
 
 
 					//stage.addChild(contents_loader_obj);
-				}
+				}*/
 				LCircleArray[0].x = int(parseInt(kinect_array[2]) * 2);
 				LCircleArray[0].y = int(parseInt(kinect_array[3]) * 2.25);
 				RCircleArray[0].x = int(parseInt(kinect_array[4]) * 2);
@@ -335,7 +350,7 @@
 
 			//プレイヤー,mode(2),LX,LY,RX,RY,ScaleX,ScaleY->6,7
 			if (kinect_array[1] == 2) {
-				trace("両手処理");
+				//trace("両手処理");
 				kinect_2 = 1;
 
 				if (contents_n == 1) { //画像が読み込んだら
@@ -362,17 +377,35 @@
 		public function menu() {
 			trace("menu");
 			/*##########################フェード###############################*/
-			menu_in=true;
+			menu_in = true;
 			menu_pic.alpha = 0;
 			menu_tx1.alpha = 0;
 			menu_tx2.alpha = 0;
+			menu_tx1.text = "音声で検索したい文字を入力してください";
+			menu_tx2.text = "";
+			
 			stage.addChild(menu_pic); //最背面に移動　http://morishige.jp/blog/archives/99
-			stage.setChildIndex(menu_pic, 0);
+			stage.setChildIndex(menu_pic, 0); //順番考えようぜ
 			menu_pic.addEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolIn);
 
 			/*##########################フェード###############################*/
 		}
 
+
+
+
+		public function kinect_remove() {
+			if (kinect_pointer_add == true) {
+				stage.removeChild(LCircleArray[0]);
+				stage.removeChild(RCircleArray[0]);
+				kinect_pointer_add = false;
+			}
+			if(square==true){
+				stage.removeChild(square_shape);
+				square=false;
+			}
+
+		} //kinect_remove
 
 		/*###########################フェイドイン関係###########################*/
 
@@ -385,6 +418,7 @@
 			{
 				menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolIn);
 				//音声処理
+				trace("音声");
 				/*
 				bytes = new ByteArray;
 				mic = Microphone.getMicrophone();
@@ -396,6 +430,7 @@
 				mic.addEventListener(SampleDataEvent.SAMPLE_DATA, mic_Data);
 				mic.addEventListener(ActivityEvent.ACTIVITY, mic_onstart);
 				*/
+
 
 				//wavバイパス
 				var tmp_loader: URLLoader = new URLLoader;
@@ -410,6 +445,7 @@
 					web_send();
 					//tmp_wavBytes.position=0;
 				}
+				
 
 			}
 		} //fl_FadeSymbolin
@@ -417,25 +453,31 @@
 		{
 			if (kinect_user_out == true) {
 				menu_pic.alpha -= 0.05;
-				menu_tx1.alpha -= 0.05;
-				menu_tx2.alpha -= 0.05;
-				if (menu_pic.alpha <= 0 || menu_tx1.alpha <= 0 || menu_tx2.alpha <= 0) {
-						menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
-						kinect_remove();
-						speech_array = [];
-						kinect_user_out = false;
-						gotoAndStop(1, "シーン 1");
-					}
-			}else{
+				if(scene_2==true){
+					menu_tx1.alpha -= 0.05; //シーン2に行ってないのに、呼び出すとエラーが出る（たまにある）
+					menu_tx2.alpha -= 0.05;
+				}
+
+				if (menu_pic.alpha <= 0) {
+					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
+					kinect_remove();
+					speech_array = [];
+					kinect_user_out = false;
+					scene_2=false;
+					gotoAndStop(1, "シーン 1");
+				}
+			} else {
 				menu_pic.alpha -= 0.05;
 				menu_tx1.alpha -= 0.05;
 				menu_tx2.alpha -= 0.05;
 				if (menu_pic.alpha <= 0) {
-					if(menu_in==true){
+					if (menu_in == true) {
+						scene_2=false;
 						gotoAndStop(1, "シーン 3");
 						stage.addChild(contents_loader_obj);
-						stage.setChildIndex(contents_loader_obj, 0);
-						menu_in=false;
+						stage.setChildIndex(contents_loader_obj, 1);
+						menu_in = false;
+						first_contents = true;
 					}
 					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
 				}
@@ -445,14 +487,6 @@
 
 		/*######################################################################*/
 
-		public function kinect_remove() {
-			if (kinect_pointer_add == true) {
-				stage.removeChild(LCircleArray[0]);
-				stage.removeChild(RCircleArray[0]);
-				kinect_pointer_add == false;
-			}
-
-		} //kinect_remove
 
 		public function mic_onstart(e: ActivityEvent) { //タイマー作成→録音開始
 			startTime = (new Date).getTime();
@@ -503,6 +537,7 @@
 				wavBytes.writeUTFBytes("data");
 				wavBytes.writeInt(len);
 				wavBytes.writeBytes(wave);
+				web_send();
 
 			} //sound_f_if
 
@@ -510,6 +545,11 @@
 
 		public function web_send() { //webで検索・・・(POST)
 			trace("検索中");
+			menu_tx1.alpha = 1;
+			menu_tx2.alpha = 1;
+			menu_tx1.text = "検索中";
+
+
 
 			var variables: URLVariables = new URLVariables();
 			//var urlRequest:URLRequest = new URLRequest("http://encrypted.sbf-ki17cb.com:12000/wsa/speech.php");
@@ -540,7 +580,8 @@
 					not_found_db = 1;
 
 					//stage.addChild(sk);
-					//text1.text = "検索結果から、データベースに情報がありませんでした\n左手を上に上げ、もう一回検索してください。\n左手を上げて検索する場合は画面が変わったら左手を下げてください。\n検索ワード=>"+speech_array[0];
+					menu_tx1.text= "検索エラー";
+					menu_tx2.text = "検索結果から、データベースに情報がありませんでした\n左手を上に上げ、もう一回検索してください。\n左手を上げて検索する場合は画面が変わったら左手を下げてください。\n検索ワード=>"+speech_array[0];
 
 					//web_api();
 				} else if (speech_array[2] == "1") {
@@ -576,7 +617,7 @@
 							str += button + " bx=" + bx1 + " by=" + by1 + " ax=" + ax1 + " ay=" + ay1 + "\n";
 						}　 //実行する順番は重要
 						contents_name = speech_array[0];
-						trace("parse->"+speech_array[0]);
+						trace("parse->" + speech_array[0]);
 						contents_view();
 						return str;
 
@@ -646,10 +687,10 @@
 				contents_name = xml_contents_array[xml_contents];
 			}*/
 
-			
+
 
 			contents_name2 = "../img/" + contents_name;
-			trace("読み込み->"+contents_name2);
+			trace("読み込み->" + contents_name2);
 
 			//text1.text = "ファイル名=" + contents_name2;
 			contents_url = new URLRequest(contents_name2);
@@ -665,14 +706,14 @@
 
 
 			contents_loader_obj.load(contents_url);
-			if(menu_in==true){
+			if (menu_in == true) {
 				menu_pic.addEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
 				//menu_in=false;
-			}else{
+			} else {
 				stage.addChild(contents_loader_obj);
 				stage.setChildIndex(contents_loader_obj, 0);
 			}
-			
+
 			trace("画像読み込み完了");
 			//text1.text="読み込み完了";
 			if (xml_found == 1) {
@@ -683,9 +724,9 @@
 		} //contents_view
 
 		public function make_square() {
-			var shape = new Shape();
-			stage.addChild(shape);
-			var g = shape.graphics;
+			//var shape = new Shape();
+			stage.addChild(square_shape);
+			var g = square_shape.graphics;
 			g.lineStyle(1, 0x000000, 1.0); // 線のスタイル指定
 			g.beginFill(0xFF0000, 0.2); // 面のスタイル設定
 			for (var i: uint = 0; i < xml_length; i++) {
@@ -696,11 +737,14 @@
 				//trace("bx="+b_x+"by="+b_y+"ax="+a_x+"ay="+a_y+"\n");
 				g.drawRect(b_x, b_y, (a_x - b_x), (a_y - b_y));
 			}
+			square=true;
 			//xml_length=0;
 			//xml_found=0;
 
 
 		} //make_square
+
+
 
 	} //main
 

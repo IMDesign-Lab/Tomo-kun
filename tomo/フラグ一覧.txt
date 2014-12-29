@@ -1,5 +1,0 @@
-not_found_db 	データベースに情報がなかった時を示す。
-kinect_2		なんだこれ
-contents_n		コンテンツが読み込まれたかを確認
-xml_found		xmlがあるかないか
-xml_contents	xmlのコンテンツ番号が書いてある

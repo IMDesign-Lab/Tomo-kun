@@ -157,6 +157,17 @@
 		private var second_contennts:Boolean = false;//2階層目のコンテンツを表示させたか（タッチで表示されたコンテンツ）
 		
 		private var square_shape = new Shape();
+		
+		private var touch_time:int =3;//タッチから次の処理に進む時間(秒)
+		
+		private var kinect_frameRate:int = 30;//kinectの赤外線のやつのフレームレート
+		
+		private var touch_count:int = ((touch_time * kinect_frameRate)-kinect_frameRate);
+		
+		private var touch_counter:Array =[];//カウントをためておくところ
+		
+		
+		
 
 
 
@@ -169,6 +180,7 @@
 			//gotoAndStop(1, "シーン 2");
 
 			//menu();
+			//trace(touch_count);
 			op_video();
 			kinect();
 
@@ -250,6 +262,7 @@
 				menu();
 			} else if (lost_answer == true) {
 				trace("人認識解除");
+				stage.removeChild(contents_loader_obj);
 				stage.addChild(player);
 				player.play(video_Path);
 				kinect_user_out = true;
@@ -262,7 +275,7 @@
 				RCircleArray.push(R_kinect);
 				stage.addChild(LCircleArray[0]);
 				stage.addChild(RCircleArray[0]);
-				g.lineStyle(5, 0x0CBF56, 100);
+
 				kinect_p();
 
 			} //kinect_onOutputData_if
@@ -322,26 +335,44 @@
 
 				/*##########################xmlがある時###############################*/
 				if (xml_found == true) {
-					//trace("xml_found");
-					for (var i: uint = 0; i < xml_length; i++) {
-						//trace("xml_found_i=>"+i);
-						if (LCircleArray[0].x>=int(bx[i]) && LCircleArray[0].x<=int(ax[i]) && LCircleArray[0].y>=int(by[i])&&LCircleArray[0].y<=int(ay[i])) {
-							//var start: uint = getTimer();
-							trace(xml_contents_array[i]+"の枠に入ったかも");
-							/*while (getTimer() - start < xml_count) {
-								if (int(parseInt(kinect_array[5]) * 2) >= parseInt(bx[i]) && int(parseInt(kinect_array[5]) * 2) <= parseInt(ax[i]) && int(parseInt(kinect_array[6]) * 2.25) >= parseInt(by[i]) && int(parseInt(kinect_array[6]) * 2.25) <= parseInt(ay[i])) {
-									kinect_p();
-								}
-								//load処理
-								xml_contents = i;
-								//contents_view();
 
-							}*/
+						stage.addChild(square_shape);
+						stage.setChildIndex(square_shape, 2);
+						var g = square_shape.graphics;
+						g.lineStyle(1, 0x000000, 1.0); // 線のスタイル指定
+						//g.beginFill(0xFF0000, 0.2); // 面のスタイル設定	
+					
+					for (var i: uint = 0; i < xml_length; i++) {
+						
+						
+						if (LCircleArray[0].x>=int(bx[i]) && LCircleArray[0].x<=int(ax[i]) && LCircleArray[0].y>=int(by[i])&&LCircleArray[0].y<=int(ay[i]) || RCircleArray[0].x>=int(bx[i]) && RCircleArray[0].x<=int(ax[i]) && RCircleArray[0].y>=int(by[i])&& RCircleArray[0].y<=int(ay[i])) {
+								if(touch_counter[i]>=1 && square==true){
+									g.clear();
+									square=false;
+								}
+								touch_counter[i]+=1;
+								g.beginFill(0xFF0000,0.2); // 面のスタイル設定
+								g.drawRect(bx[i], by[i], (ax[i] - bx[i]), (ay[i] - by[i]));
+								square=true;
+								trace("drawRect");
+								
+
+								if(touch_counter[i]==touch_count){
+									trace("多分"+touch_time+"秒静止=>"+xml_contents_array[i]);
+									touch_counter[i]=0;//多分必要ないかも
+								}
+								
 						} else {
-							//何も処理をしないので何も書かない。
-							//trace("xmlのフラグは読み込めてる");
+							if(touch_counter[i]>=1 && square==true){
+								g.clear();
+								square=false;
+							}
+							touch_counter[i]=0;
+							//g.unload();
+							//stage.removeChild(square_shape);
 
 						}
+
 
 					}
 
@@ -492,7 +523,7 @@
 					speech_array = [];
 					kinect_user_out = false;
 					scene_2=false;
-					xml_found=true;
+					xml_found=false;
 					gotoAndStop(1, "シーン 1");
 				}
 			} else {
@@ -507,6 +538,7 @@
 						stage.setChildIndex(contents_loader_obj, 1);
 						menu_in = false;
 						first_contents = true;
+						xml_found=true;
 					}
 					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
 				}
@@ -614,7 +646,7 @@
 
 					//web_api();
 				} else if (speech_array[2] == "1") {
-					xml_found = true;
+					//xml_found = true;
 					loader = new URLLoader();
 					loader.dataFormat = URLLoaderDataFormat.TEXT;
 					loader.addEventListener(Event.COMPLETE, complete, false, 0, true);
@@ -747,7 +779,7 @@
 			//text1.text="読み込み完了";
 			if (xml_found == true) {
 				trace("if->xml_found");
-				make_square();
+				//make_square();
 			}
 
 		} //contents_view

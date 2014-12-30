@@ -1,22 +1,35 @@
 ﻿package {
 
-	import flash.display.*;
-	import flash.desktop.*;
-	import flash.events.*;
-	import flash.filesystem.*;
-	import flash.text.*;
-	import flash.system.*;
-	import flash.utils.*;
-	import flash.media.*;
-	import flash.net.*;
-	import flash.text.*;
-	import flash.utils.*;
-	import fl.video.*;
-	import flash.events.*;
-	import mx.utils.*;
-	import spark.effects.Move;
-	import flash.geom.*;
+	import flash.desktop.NativeProcess;
+	import flash.desktop.NativeProcessStartupInfo;
+	import flash.display.Loader;
+	import flash.display.LoaderInfo;
+	import flash.display.MovieClip;
+	import flash.display.Shape;
+	import flash.events.ActivityEvent;
+	import flash.events.Event;
+	import flash.events.FullScreenEvent;
+	import flash.events.IOErrorEvent;
+	import flash.events.ProgressEvent;
+	import flash.events.SampleDataEvent;
+	import flash.filesystem.File;
+	import flash.geom.ColorTransform;
+	import flash.media.Microphone;
+	import flash.media.Sound;
+	import flash.net.URLLoader;
+	import flash.net.URLLoaderDataFormat;
+	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
+	import flash.utils.ByteArray;
+	import flash.utils.Endian;
+	import flash.utils.getTimer;
+	
 	import mx.effects.easing.Back;
+	import mx.utils.Base64Encoder;
+	
+	import spark.effects.Move;
+	import fl.video.*;
 
 
 	public class main extends MovieClip {
@@ -123,7 +136,7 @@
 		public var tmp_wavBytes = new ByteArray;
 		public var xml: XML;
 		public var xml_length: uint = 0;
-		public var xml_found: uint = 0;
+		//public var xml_found: uint = 0;
 		public var xml_count: uint = 0;
 		public var xml_contents: uint = 0;
 
@@ -136,9 +149,12 @@
 		private var kinect_pointer_add: Boolean = false; //画面上に上下のポインターが表示されているか
 		private var kinect_user_out: Boolean = false; //kinectからユーザがいなくなったかどうか
 		private var menu_in: Boolean = false; //menu画面を表示させたか
-		private var first_contents: Boolean = false; //最初のコンテンツを表示させたか
+		private var first_contents: Boolean = false; //最初のコンテンツを表示させたか（音声検索で検索されたコンテンツ）
 		private var scene_2: Boolean = false; //scene2にいったかどうか
 		private var square: Boolean = false; //scene2にいったかどうか
+		private var xml_found: Boolean = false; //xmlがあるかどうか
+		
+		private var second_contennts:Boolean = false;//2階層目のコンテンツを表示させたか（タッチで表示されたコンテンツ）
 		
 		private var square_shape = new Shape();
 
@@ -280,28 +296,39 @@
 
 
 				/*##########################左手を上に上げたら###############################*/
-				if (int(parseInt(kinect_array[3]) * 2.25) <= 40) {
-					if (first_contents == true) {
+				if (int(parseInt(kinect_array[3]) * 2.25) <= 40) {//順番に戻るようにしないと行けない
+					if (first_contents == true) {//音声検索で検索されたコンテンツ
 						contents_loader_obj.unload();
 						first_contents = false;
 
-					}
 					if(square==true){
 						stage.removeChild(square_shape);
 						square=false;
-					}					
+					}		
 					gotoAndStop(1, "シーン 2");
 					scene_2=true;
+					xml_found=false;
 					menu();
+					}//音声検索で検索されたコンテンツ
+					
+					if(second_contennts==true){
+						second_contennts=false;
+						gotoAndStop(1, "シーン 3");
+						//なんか
+					}//second_contents
+					
 				}
 				/*##########################左手を上に上げたら###############################*/
 
 				/*##########################xmlがある時###############################*/
-				if (xml_found == 1) {
+				if (xml_found == true) {
+					//trace("xml_found");
 					for (var i: uint = 0; i < xml_length; i++) {
-						if (int(parseInt(kinect_array[5]) * 2) <= parseInt(bx[i]) && int(parseInt(kinect_array[5]) * 2) >= parseInt(ax[i]) && int(parseInt(kinect_array[6]) * 2.25) <= parseInt(by[i]) && int(parseInt(kinect_array[6]) * 2.25) >= parseInt(ay[i])) {
-							var start: uint = getTimer();
-							while (getTimer() - start < xml_count) {
+						//trace("xml_found_i=>"+i);
+						if (LCircleArray[0].x>=int(bx[i]) && LCircleArray[0].x<=int(ax[i]) && LCircleArray[0].y>=int(by[i])&&LCircleArray[0].y<=int(ay[i])) {
+							//var start: uint = getTimer();
+							trace(xml_contents_array[i]+"の枠に入ったかも");
+							/*while (getTimer() - start < xml_count) {
 								if (int(parseInt(kinect_array[5]) * 2) >= parseInt(bx[i]) && int(parseInt(kinect_array[5]) * 2) <= parseInt(ax[i]) && int(parseInt(kinect_array[6]) * 2.25) >= parseInt(by[i]) && int(parseInt(kinect_array[6]) * 2.25) <= parseInt(ay[i])) {
 									kinect_p();
 								}
@@ -309,9 +336,10 @@
 								xml_contents = i;
 								//contents_view();
 
-							}
+							}*/
 						} else {
 							//何も処理をしないので何も書かない。
+							//trace("xmlのフラグは読み込めてる");
 
 						}
 
@@ -464,6 +492,7 @@
 					speech_array = [];
 					kinect_user_out = false;
 					scene_2=false;
+					xml_found=true;
 					gotoAndStop(1, "シーン 1");
 				}
 			} else {
@@ -585,7 +614,7 @@
 
 					//web_api();
 				} else if (speech_array[2] == "1") {
-					xml_found = 1;
+					xml_found = true;
 					loader = new URLLoader();
 					loader.dataFormat = URLLoaderDataFormat.TEXT;
 					loader.addEventListener(Event.COMPLETE, complete, false, 0, true);
@@ -716,7 +745,7 @@
 
 			trace("画像読み込み完了");
 			//text1.text="読み込み完了";
-			if (xml_found == 1) {
+			if (xml_found == true) {
 				trace("if->xml_found");
 				make_square();
 			}
@@ -730,16 +759,15 @@
 			g.lineStyle(1, 0x000000, 1.0); // 線のスタイル指定
 			g.beginFill(0xFF0000, 0.2); // 面のスタイル設定
 			for (var i: uint = 0; i < xml_length; i++) {
-				var b_x: int = bx.shift();
-				var b_y: int = by.shift();
-				var a_x: int = ax.shift();
-				var a_y: int = ay.shift();
+				var b_x: int = bx[i];
+				var b_y: int = by[i];
+				var a_x: int = ax[i];
+				var a_y: int = ay[i];
 				//trace("bx="+b_x+"by="+b_y+"ax="+a_x+"ay="+a_y+"\n");
 				g.drawRect(b_x, b_y, (a_x - b_x), (a_y - b_y));
 			}
 			square=true;
 			//xml_length=0;
-			//xml_found=0;
 
 
 		} //make_square

@@ -154,7 +154,7 @@
 		private var square: Boolean = false; //scene2にいったかどうか
 		private var xml_found: Boolean = false; //xmlがあるかどうか
 		
-		private var second_contennts:Boolean = false;//2階層目のコンテンツを表示させたか（タッチで表示されたコンテンツ）
+		private var second_contents:Boolean = false;//2階層目のコンテンツを表示させたか（タッチで表示されたコンテンツ）
 		
 		private var square_shape = new Shape();
 		
@@ -165,6 +165,10 @@
 		private var touch_count:int = ((touch_time * kinect_frameRate)-kinect_frameRate);
 		
 		private var touch_counter:Array =[];//カウントをためておくところ
+		
+		private var test_sound_obj:Sound = new test_music();
+		
+		private var first_contents_name:String ; //最初に何を開いたかをやる
 		
 		
 		
@@ -262,7 +266,10 @@
 				menu();
 			} else if (lost_answer == true) {
 				trace("人認識解除");
-				stage.removeChild(contents_loader_obj);
+				if (first_contents==true){
+					stage.removeChild(contents_loader_obj);
+					first_contents=false;
+				}
 				stage.addChild(player);
 				player.play(video_Path);
 				kinect_user_out = true;
@@ -324,9 +331,13 @@
 					menu();
 					}//音声検索で検索されたコンテンツ
 					
-					if(second_contennts==true){
-						second_contennts=false;
-						gotoAndStop(1, "シーン 3");
+					if(second_contents==true){//戻りがうまくない
+						contents_loader_obj.unload();
+						second_contents=false;
+						contents_name=first_contents_name;
+						contents_view();
+						second_contents=false;
+						
 						//なんか
 					}//second_contents
 					
@@ -354,12 +365,24 @@
 								g.beginFill(0xFF0000,0.2); // 面のスタイル設定
 								g.drawRect(bx[i], by[i], (ax[i] - bx[i]), (ay[i] - by[i]));
 								square=true;
-								trace("drawRect");
+								//trace("drawRect");
 								
 
-								if(touch_counter[i]==touch_count){
+								if(touch_counter[i]==touch_count){//ある時間とどまってたら
 									trace("多分"+touch_time+"秒静止=>"+xml_contents_array[i]);
-									touch_counter[i]=0;//多分必要ないかも
+									//touch_counter[i]=0;//多分必要ないかも
+									
+									test_sound_obj.play(0,1);
+									
+									//画面を変えよう
+									xml_found=false;
+									second_contents=true;
+									g.clear();
+									contents_loader_obj.unload();
+									contents_name=xml_contents_array[i];
+									contents_view();
+									
+									
 								}
 								
 						} else {
@@ -678,6 +701,8 @@
 							str += button + " bx=" + bx1 + " by=" + by1 + " ax=" + ax1 + " ay=" + ay1 + "\n";
 						}　 //実行する順番は重要
 						contents_name = speech_array[0];
+						first_contents_name=speech_array[0];
+						
 						trace("parse->" + speech_array[0]);
 						contents_view();
 						return str;
@@ -774,6 +799,9 @@
 				stage.addChild(contents_loader_obj);
 				stage.setChildIndex(contents_loader_obj, 0);
 			}
+			
+			
+			first_contents = true;
 
 			trace("画像読み込み完了");
 			//text1.text="読み込み完了";

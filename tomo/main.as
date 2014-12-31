@@ -24,10 +24,10 @@
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	import flash.utils.getTimer;
-	
+
 	import mx.effects.easing.Back;
 	import mx.utils.Base64Encoder;
-	
+
 	import spark.effects.Move;
 	import fl.video.*;
 
@@ -153,25 +153,27 @@
 		private var scene_2: Boolean = false; //scene2にいったかどうか
 		private var square: Boolean = false; //scene2にいったかどうか
 		private var xml_found: Boolean = false; //xmlがあるかどうか
-		
-		private var second_contents:Boolean = false;//2階層目のコンテンツを表示させたか（タッチで表示されたコンテンツ）
-		
+
+		private var second_contents: Boolean = false; //2階層目のコンテンツを表示させたか（タッチで表示されたコンテンツ）
+
 		private var square_shape = new Shape();
+
+		private var touch_time: int = 3; //タッチから次の処理に進む時間(秒)
+
+		private var kinect_frameRate: int = 30; //kinectの赤外線のやつのフレームレート
+
+		private var touch_count: int = ((touch_time * kinect_frameRate) - kinect_frameRate);
+
+		private var touch_counter: Array = []; //カウントをためておくところ
+
+		private var test_sound_obj: Sound = new test_music();
+
+		private var first_contents_name: String; //最初に何を開いたかをやる
 		
-		private var touch_time:int =3;//タッチから次の処理に進む時間(秒)
-		
-		private var kinect_frameRate:int = 30;//kinectの赤外線のやつのフレームレート
-		
-		private var touch_count:int = ((touch_time * kinect_frameRate)-kinect_frameRate);
-		
-		private var touch_counter:Array =[];//カウントをためておくところ
-		
-		private var test_sound_obj:Sound = new test_music();
-		
-		private var first_contents_name:String ; //最初に何を開いたかをやる
-		
-		
-		
+		private var contents_found:Boolean = false;
+
+
+
 
 
 
@@ -262,13 +264,14 @@
 				player.stop();
 				stage.removeChild(player);
 				gotoAndStop(1, "シーン 2");
-				scene_2=true;
+				scene_2 = true;
 				menu();
 			} else if (lost_answer == true) {
 				trace("人認識解除");
-				if (first_contents==true){
+				if (contents_found == true) {
+					
 					stage.removeChild(contents_loader_obj);
-					first_contents=false;
+					contents_found = false;
 				}
 				stage.addChild(player);
 				player.play(video_Path);
@@ -316,81 +319,105 @@
 
 
 				/*##########################左手を上に上げたら###############################*/
-				if (int(parseInt(kinect_array[3]) * 2.25) <= 40) {//順番に戻るようにしないと行けない
-					if (first_contents == true) {//音声検索で検索されたコンテンツ
+				if (int(parseInt(kinect_array[3]) * 2.25) <= 40) { //順番に戻るようにしないと行けない
+					trace("first_contents=>"+first_contents);
+					trace("square=>"+square);
+					trace("second_contents=>"+second_contents);
+					trace("menu_in=>"+menu_in);
+					if (second_contents == false) { //音声検索で検索されたコンテンツ
+						trace("first_contents");
 						contents_loader_obj.unload();
 						first_contents = false;
 
-					if(square==true){
-						stage.removeChild(square_shape);
-						square=false;
-					}		
-					gotoAndStop(1, "シーン 2");
-					scene_2=true;
-					xml_found=false;
-					menu();
-					}//音声検索で検索されたコンテンツ
-					
-					if(second_contents==true){//戻りがうまくない
+						if (square == true) {
+							stage.removeChild(square_shape);
+							square = false;
+						}
+						gotoAndStop(1, "シーン 2");
+						scene_2 = true;
+						xml_found = false;
+						menu();
+					//} //音声検索で検索されたコンテンツ
+
+				/*}else if (second_contents == true) { //戻りがうまくない
+						trace("second_contents");
 						contents_loader_obj.unload();
-						second_contents=false;
-						contents_name=first_contents_name;
+						second_contents = false;
+						xml_found=true;
+						contents_name = first_contents_name;
 						contents_view();
-						second_contents=false;
-						
+						//second_contents = false;
+
 						//なんか
-					}//second_contents
+					*/
+					} //second_contents
 					
+
 				}
+				
+				if (int(parseInt(kinect_array[3]) * 2.25) >= 950) { //下に手をあげたら
+						if (second_contents == true) { //戻りがうまくない
+							trace("second_contents");
+							contents_loader_obj.unload();
+							second_contents = false;
+							xml_found=true;
+							contents_name = first_contents_name;
+							contents_view();
+						}
+					}
+					
+					
 				/*##########################左手を上に上げたら###############################*/
 
 				/*##########################xmlがある時###############################*/
 				if (xml_found == true) {
 
-						stage.addChild(square_shape);
-						stage.setChildIndex(square_shape, 2);
-						var g = square_shape.graphics;
-						g.lineStyle(1, 0x000000, 1.0); // 線のスタイル指定
-						//g.beginFill(0xFF0000, 0.2); // 面のスタイル設定	
+					stage.addChild(square_shape);
+					stage.setChildIndex(square_shape, 2);
+					var g = square_shape.graphics;
+					g.lineStyle(1, 0x000000, 1.0); // 線のスタイル指定
 					
-					for (var i: uint = 0; i < xml_length; i++) {
-						
-						
-						if (LCircleArray[0].x>=int(bx[i]) && LCircleArray[0].x<=int(ax[i]) && LCircleArray[0].y>=int(by[i])&&LCircleArray[0].y<=int(ay[i]) || RCircleArray[0].x>=int(bx[i]) && RCircleArray[0].x<=int(ax[i]) && RCircleArray[0].y>=int(by[i])&& RCircleArray[0].y<=int(ay[i])) {
-								if(touch_counter[i]>=1 && square==true){
-									g.clear();
-									square=false;
-								}
-								touch_counter[i]+=1;
-								g.beginFill(0xFF0000,0.2); // 面のスタイル設定
-								g.drawRect(bx[i], by[i], (ax[i] - bx[i]), (ay[i] - by[i]));
-								square=true;
-								//trace("drawRect");
-								
+					//g.beginFill(0xFF0000, 0.2); // 面のスタイル設定	
 
-								if(touch_counter[i]==touch_count){//ある時間とどまってたら
-									trace("多分"+touch_time+"秒静止=>"+xml_contents_array[i]);
-									//touch_counter[i]=0;//多分必要ないかも
-									
-									test_sound_obj.play(0,1);
-									
-									//画面を変えよう
-									xml_found=false;
-									second_contents=true;
-									g.clear();
-									contents_loader_obj.unload();
-									contents_name=xml_contents_array[i];
-									contents_view();
-									
-									
-								}
-								
-						} else {
-							if(touch_counter[i]>=1 && square==true){
+					for (var i: uint = 0; i < xml_length; i++) {
+
+
+						if (LCircleArray[0].x >= int(bx[i]) && LCircleArray[0].x <= int(ax[i]) && LCircleArray[0].y >= int(by[i]) && LCircleArray[0].y <= int(ay[i]) || RCircleArray[0].x >= int(bx[i]) && RCircleArray[0].x <= int(ax[i]) && RCircleArray[0].y >= int(by[i]) && RCircleArray[0].y <= int(ay[i])) {
+							if (touch_counter[i] >= 1 && square == true) {
 								g.clear();
-								square=false;
+								square = false;
 							}
-							touch_counter[i]=0;
+							touch_counter[i] += 1;
+							g.beginFill(0xFF0000, 0.2); // 面のスタイル設定
+							g.drawRect(bx[i], by[i], (ax[i] - bx[i]), (ay[i] - by[i]));
+							square = true;
+							//trace("drawRect");
+
+
+							if (touch_counter[i] == touch_count) { //ある時間とどまってたら
+								trace("多分" + touch_time + "秒静止=>" + xml_contents_array[i]);
+								//touch_counter[i]=0;//多分必要ないかも
+
+								test_sound_obj.play(0, 1);
+
+								//画面を変えよう
+								xml_found = false;
+								second_contents = true;
+								menu_in = false;
+								g.clear();
+								contents_loader_obj.unload();
+								contents_name = xml_contents_array[i];
+								contents_view();
+
+
+							}
+
+						} else {
+							if (touch_counter[i] >= 1 && square == true) {
+								g.clear();
+								square = false;
+							}
+							touch_counter[i] = 0;
 							//g.unload();
 							//stage.removeChild(square_shape);
 
@@ -465,7 +492,7 @@
 			menu_tx2.alpha = 0;
 			menu_tx1.text = "音声で検索したい文字を入力してください";
 			menu_tx2.text = "";
-			
+
 			stage.addChild(menu_pic); //最背面に移動　http://morishige.jp/blog/archives/99
 			stage.setChildIndex(menu_pic, 0); //順番考えようぜ
 			menu_pic.addEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolIn);
@@ -482,9 +509,9 @@
 				stage.removeChild(RCircleArray[0]);
 				kinect_pointer_add = false;
 			}
-			if(square==true){
+			if (square == true) {
 				stage.removeChild(square_shape);
-				square=false;
+				square = false;
 			}
 
 		} //kinect_remove
@@ -527,7 +554,7 @@
 					web_send();
 					//tmp_wavBytes.position=0;
 				}
-				
+
 
 			}
 		} //fl_FadeSymbolin
@@ -535,7 +562,7 @@
 		{
 			if (kinect_user_out == true) {
 				menu_pic.alpha -= 0.05;
-				if(scene_2==true){
+				if (scene_2 == true) {
 					menu_tx1.alpha -= 0.05; //シーン2に行ってないのに、呼び出すとエラーが出る（たまにある）
 					menu_tx2.alpha -= 0.05;
 				}
@@ -545,8 +572,8 @@
 					kinect_remove();
 					speech_array = [];
 					kinect_user_out = false;
-					scene_2=false;
-					xml_found=false;
+					scene_2 = false;
+					xml_found = false;
 					gotoAndStop(1, "シーン 1");
 				}
 			} else {
@@ -555,13 +582,13 @@
 				menu_tx2.alpha -= 0.05;
 				if (menu_pic.alpha <= 0) {
 					if (menu_in == true) {
-						scene_2=false;
+						scene_2 = false;
 						gotoAndStop(1, "シーン 3");
 						stage.addChild(contents_loader_obj);
 						stage.setChildIndex(contents_loader_obj, 1);
 						menu_in = false;
-						first_contents = true;
-						xml_found=true;
+						//first_contents = false;
+						//xml_found = true;
 					}
 					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
 				}
@@ -660,16 +687,17 @@
 
 				trace(result);
 				speech_array = result.split(",");
+				first_contents_name = speech_array[0];
 				if (speech_array[1] == undefined) {
 					not_found_db = 1;
 
 					//stage.addChild(sk);
-					menu_tx1.text= "検索エラー";
-					menu_tx2.text = "検索結果から、データベースに情報がありませんでした\n左手を上に上げ、もう一回検索してください。\n左手を上げて検索する場合は画面が変わったら左手を下げてください。\n検索ワード=>"+speech_array[0];
+					menu_tx1.text = "検索エラー";
+					menu_tx2.text = "検索結果から、データベースに情報がありませんでした\n左手を上に上げ、もう一回検索してください。\n左手を上げて検索する場合は画面が変わったら左手を下げてください。\n検索ワード=>" + speech_array[0];
 
 					//web_api();
 				} else if (speech_array[2] == "1") {
-					//xml_found = true;
+					xml_found = true;
 					loader = new URLLoader();
 					loader.dataFormat = URLLoaderDataFormat.TEXT;
 					loader.addEventListener(Event.COMPLETE, complete, false, 0, true);
@@ -701,8 +729,8 @@
 							str += button + " bx=" + bx1 + " by=" + by1 + " ax=" + ax1 + " ay=" + ay1 + "\n";
 						}　 //実行する順番は重要
 						contents_name = speech_array[0];
-						first_contents_name=speech_array[0];
-						
+						//first_contents=true;
+
 						trace("parse->" + speech_array[0]);
 						contents_view();
 						return str;
@@ -794,14 +822,17 @@
 			contents_loader_obj.load(contents_url);
 			if (menu_in == true) {
 				menu_pic.addEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
+				//first_contents = true;
 				//menu_in=false;
 			} else {
+				//first_contents =false;
 				stage.addChild(contents_loader_obj);
 				stage.setChildIndex(contents_loader_obj, 0);
 			}
 			
+			contents_found=true;
+
 			
-			first_contents = true;
 
 			trace("画像読み込み完了");
 			//text1.text="読み込み完了";
@@ -826,7 +857,7 @@
 				//trace("bx="+b_x+"by="+b_y+"ax="+a_x+"ay="+a_y+"\n");
 				g.drawRect(b_x, b_y, (a_x - b_x), (a_y - b_y));
 			}
-			square=true;
+			square = true;
 			//xml_length=0;
 
 

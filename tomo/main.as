@@ -143,6 +143,8 @@
 		private var L_kinect: l_kinect = new l_kinect();
 		private var R_kinect: r_kinect = new r_kinect();
 		private var menu_pic: menu_pict = new menu_pict(); //menu画像のなんか
+		//private var under_l: under_line = new under_line();//
+		//private var top_l: top_line = new top_line();//
 		//private var menu_picArray: Array = new Array;
 
 		private var fadeType: String;
@@ -158,7 +160,7 @@
 
 		private var square_shape = new Shape();
 
-		private var touch_time: int = 3; //タッチから次の処理に進む時間(秒)
+		private var touch_time: int = 2; //タッチから次の処理に進む時間(秒)
 
 		private var kinect_frameRate: int = 30; //kinectの赤外線のやつのフレームレート
 
@@ -361,6 +363,7 @@
 							contents_loader_obj.unload();
 							second_contents = false;
 							xml_found=true;
+							gotoAndStop(1, "シーン 3");
 							contents_name = first_contents_name;
 							contents_view();
 						}
@@ -394,7 +397,7 @@
 							//trace("drawRect");
 
 
-							if (touch_counter[i] == touch_count) { //ある時間とどまってたら
+							if (touch_counter[i] == touch_count) { //タッチして次の処理に移動
 								trace("多分" + touch_time + "秒静止=>" + xml_contents_array[i]);
 								//touch_counter[i]=0;//多分必要ないかも
 
@@ -406,7 +409,10 @@
 								menu_in = false;
 								g.clear();
 								contents_loader_obj.unload();
+								gotoAndStop(1, "シーン 4");
 								contents_name = xml_contents_array[i];
+								//top_l.alpha=0;
+								//under_l.alpha=1;
 								contents_view();
 
 
@@ -441,7 +447,7 @@
 					//stage.removeChild(shape);
 					kinect_2 = 0;
 				}
-				/*if (first_contents==true) {
+				if (contents_found==true && second_contents == true) {
 					//trace("片手=>コンテンツは読み込み済み");
 					trace(kinect_array);
 					contents_loader_obj.x = parseInt(kinect_array[8]);
@@ -450,7 +456,7 @@
 
 
 					//stage.addChild(contents_loader_obj);
-				}*/
+				}
 				LCircleArray[0].x = int(parseInt(kinect_array[2]) * 2);
 				LCircleArray[0].y = int(parseInt(kinect_array[3]) * 2.25);
 				RCircleArray[0].x = int(parseInt(kinect_array[4]) * 2);
@@ -462,7 +468,7 @@
 				//trace("両手処理");
 				kinect_2 = 1;
 
-				if (contents_n == 1) { //画像が読み込んだら
+				if (contents_found == true && second_contents == true) { //画像が読み込んだら
 					//trace("両手=>コンテンツは読み込み済み");	
 					contents_loader_obj.scaleX = Number(kinect_array[8]);
 					contents_loader_obj.scaleY = Number(kinect_array[8]);
@@ -586,6 +592,9 @@
 						gotoAndStop(1, "シーン 3");
 						stage.addChild(contents_loader_obj);
 						stage.setChildIndex(contents_loader_obj, 1);
+						//top_l.alpha=1;
+						//under_l.alpha=0;
+						
 						menu_in = false;
 						//first_contents = false;
 						//xml_found = true;
@@ -733,6 +742,7 @@
 
 						trace("parse->" + speech_array[0]);
 						contents_view();
+						
 						return str;
 
 					}

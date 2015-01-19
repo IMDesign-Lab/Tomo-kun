@@ -673,7 +673,8 @@
 
 			var variables: URLVariables = new URLVariables();
 			//var urlRequest:URLRequest = new URLRequest("http://encrypted.sbf-ki17cb.com:12000/wsa/speech.php");
-			var urlRequest: URLRequest = new URLRequest("http://10.10.4.138/design_content.php");
+			//var urlRequest: URLRequest = new URLRequest("http://10.10.4.138/design_content.php");
+			var urlRequest: URLRequest = new URLRequest("http://192.168.11.24/design_content.php");
 			var urlLoader: URLLoader = new URLLoader();
 
 			//enc.encodeBytes(wavBytes); //base64に変換

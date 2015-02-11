@@ -360,7 +360,8 @@
 				if (int(parseInt(kinect_array[3]) * 2.25) >= 950) { //下に手をあげたら
 						if (second_contents == true) { //戻りがうまくない
 							trace("second_contents");
-							contents_loader_obj.unload();
+							//contents_loader_obj.unload();
+							contents_loader_obj.unloadAndStop();
 							second_contents = false;
 							xml_found=true;
 							gotoAndStop(1, "シーン 3");
@@ -378,9 +379,7 @@
 					stage.addChild(square_shape);
 					stage.setChildIndex(square_shape, 2);
 					var g = square_shape.graphics;
-					g.lineStyle(1, 0x000000, 1.0); // 線のスタイル指定
-					
-					//g.beginFill(0xFF0000, 0.2); // 面のスタイル設定	
+					g.lineStyle(1, 0x000000, 1.0); // 線のスタイル指定	
 
 					for (var i: uint = 0; i < xml_length; i++) {
 
@@ -391,7 +390,7 @@
 								square = false;
 							}
 							touch_counter[i] += 1;
-							g.beginFill(0xFF0000, 0.2); // 面のスタイル設定
+							g.beginFill(0xFF00FF, 0.1); // 面のスタイル設定
 							g.drawRect(bx[i], by[i], (ax[i] - bx[i]), (ay[i] - by[i]));
 							square = true;
 							//trace("drawRect");
@@ -401,7 +400,7 @@
 								trace("多分" + touch_time + "秒静止=>" + xml_contents_array[i]);
 								//touch_counter[i]=0;//多分必要ないかも
 
-								test_sound_obj.play(0, 1);
+								//test_sound_obj.play(0, 1);
 
 								//画面を変えよう
 								xml_found = false;
@@ -439,7 +438,7 @@
 
 
 			//%d,2,%f,%f,%f,%f,%f,%f,%f,%f
-			if (kinect_array[1] == 1) {
+			/*if (kinect_array[1] == 1) {
 				kinect_1 = 1;
 				//trace("片手処理");
 				if (kinect_2 == 1) {
@@ -461,10 +460,10 @@
 				LCircleArray[0].y = int(parseInt(kinect_array[3]) * 2.25);
 				RCircleArray[0].x = int(parseInt(kinect_array[4]) * 2);
 				RCircleArray[0].y = int(parseInt(kinect_array[5]) * 2.25);
-			}
+			}*/
 
 			//プレイヤー,mode(2),LX,LY,RX,RY,ScaleX,ScaleY->6,7
-			if (kinect_array[1] == 2) {
+			/*if (kinect_array[1] == 2) {
 				//trace("両手処理");
 				kinect_2 = 1;
 
@@ -482,6 +481,7 @@
 				RCircleArray[0].y = int(parseInt(kinect_array[6]) * 2.25);
 
 			}
+			*/
 
 
 		} //kinect_p
@@ -859,7 +859,7 @@
 			stage.addChild(square_shape);
 			var g = square_shape.graphics;
 			g.lineStyle(1, 0x000000, 1.0); // 線のスタイル指定
-			g.beginFill(0xFF0000, 0.2); // 面のスタイル設定
+			g.beginFill(0xFF00FF, 0.2); // 面のスタイル設定
 			for (var i: uint = 0; i < xml_length; i++) {
 				var b_x: int = bx[i];
 				var b_y: int = by[i];

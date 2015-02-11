@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <data code="UTF-8">
-	<button bx="321" by="349" ax="506" ay="532">moji/わ.jpg</button>
-	<button bx="549" by="355" ax="731" ay="532">moji/を.jpg</button>
-	<button bx="774" by="355" ax="957" ay="538">moji/ん.jpg</button>
+	<button bx="321" by="349" ax="506" ay="532">moji/わ.swf</button>
+	<button bx="549" by="355" ax="731" ay="532">moji/を.swf</button>
+	<button bx="774" by="355" ax="957" ay="538">moji/ん.swf</button>
 </data>

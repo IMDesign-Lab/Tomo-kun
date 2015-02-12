@@ -24,6 +24,8 @@
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	import flash.utils.getTimer;
+	import flash.filesystem.*;
+	import flash.media.*;
 
 	import mx.effects.easing.Back;
 	import mx.utils.Base64Encoder;
@@ -328,7 +330,12 @@
 					trace("menu_in=>"+menu_in);
 					if (second_contents == false) { //音声検索で検索されたコンテンツ
 						trace("first_contents");
-						contents_loader_obj.unload();
+						
+						if(contents_found == true){
+							contents_loader_obj.unload();
+							contents_found=false;
+						}
+						
 						first_contents = false;
 
 						if (square == true) {
@@ -357,7 +364,7 @@
 
 				}
 				
-				if (int(parseInt(kinect_array[3]) * 2.25) >= 950) { //下に手をあげたら
+				else if (int(parseInt(kinect_array[3]) * 2.25) >= 950) { //下に手をあげたら
 						if (second_contents == true) { //戻りがうまくない
 							trace("second_contents");
 							//contents_loader_obj.unload();
@@ -407,7 +414,7 @@
 								second_contents = true;
 								menu_in = false;
 								g.clear();
-								contents_loader_obj.unload();
+								contents_loader_obj.unloadAndStop();
 								gotoAndStop(1, "シーン 4");
 								contents_name = xml_contents_array[i];
 								//top_l.alpha=0;
@@ -534,20 +541,21 @@
 				menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolIn);
 				//音声処理
 				trace("音声");
-				/*
+				
 				bytes = new ByteArray;
 				mic = Microphone.getMicrophone();
 				mic.rate = 44.1; //44.1khz
-				mic.gain = 90; //ゲイン
+				mic.gain = 80; //ゲイン
 				mic.setSilenceLevel(0, 0);
 				mic.setUseEchoSuppression(true);
-				mic.setLoopBack(true);
+				mic.setLoopBack(false);
 				mic.addEventListener(SampleDataEvent.SAMPLE_DATA, mic_Data);
 				mic.addEventListener(ActivityEvent.ACTIVITY, mic_onstart);
-				*/
+				
 
 
 				//wavバイパス
+				/*
 				var tmp_loader: URLLoader = new URLLoader;
 				tmp_loader.dataFormat = URLLoaderDataFormat.BINARY;
 				tmp_loader.addEventListener(Event.COMPLETE, tmp_wav_onComplete);
@@ -560,55 +568,12 @@
 					web_send();
 					//tmp_wavBytes.position=0;
 				}
+				*/
 
 
 			}
 		} //fl_FadeSymbolin
-		function menu_pic_FadeSymbolOut(event: Event) //文字のフェード
-		{
-			if (kinect_user_out == true) {
-				menu_pic.alpha -= 0.05;
-				if (scene_2 == true) {
-					menu_tx1.alpha -= 0.05; //シーン2に行ってないのに、呼び出すとエラーが出る（たまにある）
-					menu_tx2.alpha -= 0.05;
-				}
-
-				if (menu_pic.alpha <= 0) {
-					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
-					kinect_remove();
-					speech_array = [];
-					kinect_user_out = false;
-					scene_2 = false;
-					xml_found = false;
-					gotoAndStop(1, "シーン 1");
-				}
-			} else {
-				menu_pic.alpha -= 0.05;
-				menu_tx1.alpha -= 0.05;
-				menu_tx2.alpha -= 0.05;
-				if (menu_pic.alpha <= 0) {
-					if (menu_in == true) {
-						scene_2 = false;
-						gotoAndStop(1, "シーン 3");
-						stage.addChild(contents_loader_obj);
-						stage.setChildIndex(contents_loader_obj, 1);
-						//top_l.alpha=1;
-						//under_l.alpha=0;
-						
-						menu_in = false;
-						//first_contents = false;
-						//xml_found = true;
-					}
-					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
-				}
-
-			}
-		} //fl_FadeSymbolOut
-
-		/*######################################################################*/
-
-
-		public function mic_onstart(e: ActivityEvent) { //タイマー作成→録音開始
+			public function mic_onstart(e: ActivityEvent) { //タイマー作成→録音開始
 			startTime = (new Date).getTime();
 			addEventListener(Event.ENTER_FRAME, sound_f);
 		} //mic_onstart
@@ -657,11 +622,58 @@
 				wavBytes.writeUTFBytes("data");
 				wavBytes.writeInt(len);
 				wavBytes.writeBytes(wave);
+				//writeBytesToFile("test.wav", wavBytes); 
 				web_send();
 
 			} //sound_f_if
 
 		} //sound_f
+		
+		function menu_pic_FadeSymbolOut(event: Event) //文字のフェード
+		{
+			if (kinect_user_out == true) {
+				menu_pic.alpha -= 0.05;
+				if (scene_2 == true) {
+					menu_tx1.alpha -= 0.05; //シーン2に行ってないのに、呼び出すとエラーが出る（たまにある）
+					menu_tx2.alpha -= 0.05;
+				}
+
+				if (menu_pic.alpha <= 0) {
+					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
+					kinect_remove();
+					speech_array = [];
+					kinect_user_out = false;
+					scene_2 = false;
+					xml_found = false;
+					gotoAndStop(1, "シーン 1");
+				}
+			} else {
+				menu_pic.alpha -= 0.05;
+				menu_tx1.alpha -= 0.05;
+				menu_tx2.alpha -= 0.05;
+				if (menu_pic.alpha <= 0) {
+					if (menu_in == true) {
+						scene_2 = false;
+						gotoAndStop(1, "シーン 3");
+						stage.addChild(contents_loader_obj);
+						stage.setChildIndex(contents_loader_obj, 1);
+						//top_l.alpha=1;
+						//under_l.alpha=0;
+						
+						menu_in = false;
+						//first_contents = false;
+						//xml_found = true;
+					}
+					menu_pic.removeEventListener(Event.ENTER_FRAME, menu_pic_FadeSymbolOut);
+				}
+
+			}
+		} //fl_FadeSymbolOut
+
+		/*######################################################################*/
+
+
+
 
 		public function web_send() { //webで検索・・・(POST)
 			trace("検索中");
@@ -673,12 +685,12 @@
 
 			var variables: URLVariables = new URLVariables();
 			//var urlRequest:URLRequest = new URLRequest("http://encrypted.sbf-ki17cb.com:12000/wsa/speech.php");
-			//var urlRequest: URLRequest = new URLRequest("http://10.10.4.138/design_content.php");
-			var urlRequest: URLRequest = new URLRequest("http://192.168.11.24/design_content.php");
+			var urlRequest: URLRequest = new URLRequest("http://10.4.7.14/design_content.php");
+			//var urlRequest: URLRequest = new URLRequest("http://192.168.11.24/design_content.php");
 			var urlLoader: URLLoader = new URLLoader();
 
-			//enc.encodeBytes(wavBytes); //base64に変換
-			enc.encodeBytes(tmp_wavBytes); //base64に変換
+			enc.encodeBytes(wavBytes); //base64に変換
+			//enc.encodeBytes(tmp_wavBytes); //base64に変換
 			variables.wav = enc.flush();
 			urlRequest.method = URLRequestMethod.POST;
 			urlRequest.data = variables;
@@ -698,7 +710,7 @@
 				trace(result);
 				speech_array = result.split(",");
 				first_contents_name = speech_array[0];
-				if (speech_array[1] == undefined) {
+				if (speech_array[1] == "") {
 					not_found_db = 1;
 
 					//stage.addChild(sk);
@@ -707,6 +719,7 @@
 
 					//web_api();
 				} else if (speech_array[2] == "1") {
+					trace("XML");
 					xml_found = true;
 					loader = new URLLoader();
 					loader.dataFormat = URLLoaderDataFormat.TEXT;
@@ -722,6 +735,7 @@
 					}
 
 					function parse(src: String): String {
+						trace("xml_parse");
 						xml = new XML(src);
 						var str: String = "";
 						xml_length = xml.button.length();
@@ -735,7 +749,7 @@
 							by.push(by1);
 							ax.push(ax1);
 							ay.push(ay1);
-							xml_contents_array.push(button);
+							xml_contents_array[n]=button;
 							str += button + " bx=" + bx1 + " by=" + by1 + " ax=" + ax1 + " ay=" + ay1 + "\n";
 						}　 //実行する順番は重要
 						contents_name = speech_array[0];
@@ -762,6 +776,10 @@
 
 		public function contents_view() { //コンテンツ表示
 			trace("contents_view");
+			if(contents_found==true){
+					contents_loader_obj.unloadAndStop();
+					contents_found=false;
+				}
 			contents_loader_obj = new Loader();
 			//gotoAndStop(1, "onsei");
 			//gotoAndStop(1, "シーン 3");
@@ -873,6 +891,20 @@
 
 
 		} //make_square
+	
+		
+	private function writeBytesToFile(fileName:String, data:ByteArray):void 
+    { 
+        var outFile:File = File.desktopDirectory; // dest folder is desktop 
+        outFile = outFile.resolvePath(fileName);  // name of file to write 
+        var outStream:FileStream = new FileStream(); 
+        // open output file stream in WRITE mode 
+        outStream.open(outFile, FileMode.WRITE); 
+        // write out the file 
+        outStream.writeBytes(data, 0, data.length); 
+        // close it 
+        outStream.close(); 
+    } 
 
 
 

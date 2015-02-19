@@ -135,6 +135,14 @@
 								stopper=true;
 							}
 						}
+						
+						if(stopper==false)//配列が全部0なら
+						{
+							now_user=0;
+							//ビデオの処理に戻る
+							
+						}
+						
 					}
 				}
 				

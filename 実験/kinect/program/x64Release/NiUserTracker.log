@@ -1,0 +1,31 @@
+﻿2015/02/20 0:37:07 にビルドを開始しました。
+     1>ノード 2 上のプロジェクト "C:\Users\E440-2grade-PC\Documents\GitHub\Tomo-kun\実験\kinect\program\NiUserTracker.vcxproj" (build ターゲット)。
+     1>InitializeBuildStatus:
+         "AlwaysCreate" が指定されたため "x64Release\kinect_core.unsuccessfulbuild" を作成しています。
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\OpenNI\Include" /I. /Zi /nologo /W4 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64Release\\" /Fd"x64Release\vc100.pdb" /Gd /TP /errorReport:prompt .\main.cpp /MP 
+         main.cpp
+     1>.\main.cpp(172): warning C4100: 'strPose' : 引数は関数の本体部で 1 度も参照されません。
+     1>.\main.cpp(183): warning C4100: 'nId' : 引数は関数の本体部で 1 度も参照されません。
+     1>.\main.cpp(199): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\time.inl(112) : 'localtime' の宣言を確認してください。
+     1>.\main.cpp(207): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(371) : 'sprintf' の宣言を確認してください。
+     1>.\main.cpp(458): warning C4996: 'xn::Context::InitFromXmlFile': Use other overload!
+                 C:\Program Files\OpenNI\Include\XnCppWrapper.h(9526) : 'xn::Context::InitFromXmlFile' の宣言を確認してください。
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"../Bin64/Release\kinect_core64.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Program Files\OpenNI\Lib64" /LIBPATH:./Libs openNI64.lib glut64.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64Release\kinect_core64.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\E440-2grade-PC\Documents\GitHub\Tomo-kun\実験\kinect\Bin64\Release\kinect_core64.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"../Bin64/Release\kinect_core64.lib" /MACHINE:X64 x64Release\main.obj
+         x64Release\SceneDrawer.obj
+         コード生成しています。
+         コード生成が終了しました。
+         NiUserTracker.vcxproj -> C:\Users\E440-2grade-PC\Documents\GitHub\Tomo-kun\実験\kinect\program\../Bin64/Release\kinect_core64.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"../Bin64/Release\kinect_core64.exe;#1" /manifest x64Release\kinect_core64.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         ファイル "x64Release\kinect_core.unsuccessfulbuild" を削除しています。
+         "x64Release\kinect_core.lastbuildstate" のタッチ タスクを実行しています。
+     1>プロジェクト "C:\Users\E440-2grade-PC\Documents\GitHub\Tomo-kun\実験\kinect\program\NiUserTracker.vcxproj" (build ターゲット) のビルドが完了しました。
+
+ビルドに成功しました。
+
+経過時間 00:00:02.41

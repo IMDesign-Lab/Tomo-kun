@@ -1,0 +1,32 @@
+﻿2014/09/11 11:42:38 にビルドを開始しました。
+     1>ノード 2 上のプロジェクト "Z:\卒研\プログラム\kinect\NiUserTracker.vcxproj" (build ターゲット)。
+     1>PrepareForBuild:
+         ディレクトリ "../Bin64/Debug\" を作成しています。
+       InitializeBuildStatus:
+         "AlwaysCreate" が指定されたため "x64Debug\kinect_core.unsuccessfulbuild" を作成しています。
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\OpenNI\Include" /I. /Zi /nologo /W4 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64Debug\\" /Fd"x64Debug\vc100.pdb" /Gd /TP /errorReport:prompt .\main.cpp .\SceneDrawer.cpp
+         SceneDrawer.cpp
+         main.cpp
+         Generating Code...
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"x64Debug\kinect_core64.exe.embed.manifest.res" x64Debug\kinect_core64_manifest.rc 
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"../Bin64/Debug\kinect_core64.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\OpenNI\Lib64" /LIBPATH:./Libs /LIBPATH:XnVNITE64_1_5_2.lib /LIBPATH:openNI64.lib XnVNITE64_1_5_2.lib openNI64.lib glut64.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64Debug\kinect_core64.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"Z:\卒研\プログラム\Bin64\Debug\kinect_core64.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"../Bin64/Debug\kinect_core64.lib" /MACHINE:X64 x64Debug\kinect_core64.exe.embed.manifest.res
+         x64Debug\main.obj
+         x64Debug\SceneDrawer.obj
+         NiUserTracker.vcxproj -> Z:\卒研\プログラム\kinect\../Bin64/Debug\kinect_core64.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"x64Debug\kinect_core64.exe.embed.manifest" /manifest x64Debug\kinect_core64.exe.intermediate.manifest
+         すべての出力が最新のものです。
+       LinkEmbedManifest:
+         すべての出力が最新のものです。
+         NiUserTracker.vcxproj -> Z:\卒研\プログラム\kinect\../Bin64/Debug\kinect_core64.exe
+       FinalizeBuildStatus:
+         ファイル "x64Debug\kinect_core.unsuccessfulbuild" を削除しています。
+         "x64Debug\kinect_core.lastbuildstate" のタッチ タスクを実行しています。
+     1>プロジェクト "Z:\卒研\プログラム\kinect\NiUserTracker.vcxproj" (build ターゲット) のビルドが完了しました。
+
+ビルドに成功しました。
+
+経過時間 00:00:03.45

@@ -2,9 +2,7 @@
 {
 	import flash.display.MovieClip;
 	import flash.desktop.*;
-	import flash.display.Loader;
-	import flash.display.LoaderInfo;
-	import flash.display.Shape;
+	import flash.display.*;
 	import flash.events.*;
 	import flash.filesystem.File;
 	import flash.geom.ColorTransform;
@@ -18,6 +16,7 @@
 	import flash.utils.*;
 	import flash.filesystem.*;
 	import flash.media.*;
+	import fl.video.*;
 	
 	public class main extends MovieClip
 	{
@@ -33,6 +32,12 @@
 		public var lost_a: Boolean;
 		public var ske_a: Boolean;
 		
+		public var video_Num: Number = 1; //ビデオの数
+		public var video_count: Number; //現在のビデオを数をカウントするやつ
+		public var player = new VideoPlayer();
+		public var video_Path: String; //再生中のもの
+		public var video: Array = ["C:\\Users\\E440-2grade-PC\\Desktop\\オープニング.mp4"];
+		
 		public var user_counter: Array = [0,0,0,0,0,0,0,0];//8人で考えれば十分だろ
 		public var now_user:uint=0;
 		
@@ -41,8 +46,57 @@
 			stop();
 			//バツ押したらプログラムを終わらせるイベント
 			stage.nativeWindow.addEventListener(Event.CLOSING, onClosingEvent);
+			video_play();
 			kinect_process();
 		}
+
+		public function resizeHandler(event: Event = null): void
+		{
+			trace("ビデオリサイズ");
+			player.width = stage.stageWidth;
+			player.height = stage.stageHeight;
+		}
+
+		public function fullScreenHandler(event: FullScreenEvent): void 
+		{
+			if (!event.fullScreen) resizeHandler();
+		}
+
+		public function videoChange(event: fl.video.VideoEvent)
+		{
+			//trace("ビデオ変更");
+			if (video_count < video_Num - 1) 
+			{
+				video_count++;
+				video_Path = video[video_count].toString();
+				player.play(video_Path);
+			} 
+			else
+			{
+				video_count = 0;
+				video_Path = video[video_count].toString();
+				player.play(video_Path);
+			}
+		}
+
+		public function video_play()
+		{
+			trace("ビデオ起動");
+			player.volume = 1; //ビデオの再生
+			stage.displayState = StageDisplayState.FULL_SCREEN;
+			stage.align = StageAlign.TOP_LEFT;
+			stage.scaleMode = StageScaleMode.NO_SCALE;
+			player.scaleMode = VideoScaleMode.MAINTAIN_ASPECT_RATIO;
+			stage.addEventListener(Event.RESIZE, resizeHandler);
+			stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+			resizeHandler();
+			video_count = 0;
+			video_Path = video[video_count].toString();
+			stage.addChild(player);
+			stage.setChildIndex(player, 0);
+			player.play(video_Path);
+			player.addEventListener(fl.video.VideoEvent.COMPLETE, videoChange);
+		} //on_video
 		
 		public function kinect_process():void
 		{ 
@@ -85,14 +139,13 @@
 			var stopper:Boolean=false;//変な動きしたら怪しそう
 			
 			
-			var add_array:Array = add.split(",");
-			var lost_array:Array = lost.split(",");
-			var ske_array:Array = ske.split(",");
 			
 			if (add_a == true)
 			{
 				//配列0のところになんか入れる
 				//一人目なら変数に入れるがそれ以外は配列に入れるのみ
+				trace(c);
+				var add_array:Array = c.split(",");
 				
 				for(var i:uint=0;i<8;i++)
 				{
@@ -108,12 +161,18 @@
 					now_user=user_counter[0];
 				}
 				
+				//次の処理に行く
+				trace(now_user);
+				stage.removeChild(player);
+				
 			}
 			else if (lost_a == true)
 			{
 				//配列から削除する
 				//配列に他のユーザが居るか判断して変数に入れる
-			
+				trace(c);
+				var lost_array:Array = c.split(",");
+				
 				if(now_user!=0)
 				{
 					for(var i:uint=0;i<8;i++)
@@ -127,7 +186,7 @@
 					//ユーザをどれにするか決める
 					if(now_user!=0 && now_user!=1)
 					{
-						for(var i:uint=0;i<8;i++)//頭悪いからもう一回やる
+						for(var j:uint=0;j<8;j++)//頭悪いからもう一回やる
 						{
 							if(user_counter[i]!=0 && stopper==false)
 							{
@@ -140,9 +199,12 @@
 						{
 							now_user=0;
 							//ビデオの処理に戻る
-							
+							stage.addChild(player);
+							player.play(video_Path);
+					
 						}
 						
+						trace("現在のユーザー -> "+now_user);
 					}
 				}
 				
@@ -150,11 +212,14 @@
 			else if (ske_a == true)
 			{
 				//そっから先頭のやつをskeで判断できるように変数を使って判断
+				trace(c);
+				
+				var ske_array:Array = c.split(",");
 				
 				if(ske_array[1]==now_user)
 				{
 					
-					pointer(ske_array.replace(pattern_s, ""));//ポインター関係はここではやらない
+					pointer(c.replace(pattern_s, ""));//ポインター関係はここではやらない
 				}
 				
 			}
